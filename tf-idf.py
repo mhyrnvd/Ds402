@@ -70,7 +70,7 @@ for z in range(5):
     for i in range(int(len(words))):
         total_vector.append(tf_vector[i] * idf_vector[i])
 
-    with open("dat.txt",'a',encoding='utf-8', errors='ignore') as f:
+    with open("dt.txt",'a',encoding='utf-8', errors='ignore') as f:
         for item in total_vector:
             f.write(str(item) + " ")
         f.write('\n')
