@@ -6,15 +6,12 @@ from numpy import dot
 from numpy.linalg import norm
 import json
 
-
-
+# calculation Denominator of cosine similarity
 def dot_product(vec1, vec2):
     return sum(val1 * val2 for val1, val2 in zip(vec1, vec2))
-
-
+#calculation numerator of cosine similarity
 def magnitude(vector):
     return math.sqrt(sum(val**2 for val in vector))
-
 
 def cosine_similarity(vec1, vec2):
     dot_prod = dot_product(vec1, vec2)
@@ -37,12 +34,11 @@ def most_similar_word(word, word_dict):
         if similarity_ratio > max_ratio:
             max_ratio = similarity_ratio
             similar_word = dict_word
-    # print(max_ratio)
+
     if max_ratio > 0.8:
         return similar_word
     else:
         return ''
-
 
 def tf(documents,word_count,words,prepositions):
     vectors = []
@@ -62,29 +58,6 @@ def tf(documents,word_count,words,prepositions):
             s += vectors[j][i]
         sum_vectors.append(s)
             
-
-    return sum_vectors
-
-def tf_p(documents,word_count,words,prepositions):
-    vectors = []
-    for paragragh in documents:
-        p_words = Counter(paragragh.split())
-        vector = [0] * len(words)
-        for w in paragragh.split():
-            if w not in prepositions:
-                tf_word = p_words[w] / len(word_count)
-                vector[words[w]] = tf_word
-        vectors.append(vector)
-    sum_vectors = []
-    
-    # print(vectors)
-    for i in range(len(words)):
-        s = 0
-        for j in range(len(vectors)):
-            s += vectors[j][i]
-        sum_vectors.append(s)
-            
-    # print(sum_vectors)
     return sum_vectors
 
 def idf(documents,word_count,words,prepositions):
@@ -92,7 +65,7 @@ def idf(documents,word_count,words,prepositions):
     for w in word_count.keys():
         c = 0
         for paragragh in documents:
-            # print(w)
+            
             if w in paragragh and w not in prepositions:
                 c += 1
         if c != 0:
@@ -119,6 +92,7 @@ for p in range(0,10):
             text = file.read().lower()
             text = text.translate(str.maketrans('', '', string.punctuation))    
 
+        #put the extracted data from dt.txt in list
         tf_idf = [float(item) for item in content[z].split()]
         tf_idf.pop()
 
@@ -133,29 +107,30 @@ for p in range(0,10):
 
         documents = text.splitlines()
 
-
         all_words = ' '.join(documents).split()
      
         word_count = Counter(all_words)
     
         words = {}
         i = 0
+        # map the words of doc
         for word in word_count.keys():
             if word not in prepositions:
                 words[word] = i
                 i += 1
+
         query_without_punctuation = query.translate(str.maketrans('', '', string.punctuation))
         query_without_punctuation=query_without_punctuation.lower()
 
         query = ''
-        
-        
+
+        #find the similar words in query witb candidate doc
         for query_word in query_without_punctuation.split():
             if query_word not in prepositions:
                 query += most_similar_word(query_word, words) + " "
         word_count = Counter(query.split())
 
-
+        #calculate tf-idf of query
         tf_vector = tf([query],word_count,words,prepositions)
         idf_vector = idf([query],word_count,words,prepositions)
 
@@ -163,13 +138,16 @@ for p in range(0,10):
         for i in range(int(len(words))):
             total_query_vector.append(tf_vector[i] * idf_vector[i])
 
+        #find the similartity rate of doc and query
         results.append((cosine_similarity(total_query_vector, tf_idf),z))
-      
+    
+    #sort the results to find the most similar doc
     sorted_list = sorted(results, key=lambda x: x[0])
 
     selected_doc=sorted_list[-1][1]
     print(selected_doc)
 
+    #in this section find the most similar paragraph of doc with query
     with open(f'data/document_{selected_doc}.txt', 'r',encoding='utf-8', errors='ignore') as file:
         text = file.read().lower() 
 
@@ -193,7 +171,7 @@ for p in range(0,10):
 
         word_count = Counter(line.split())
     
-        tf_paragraph=tf_p([line],word_count,words,prepositions)
+        tf_paragraph=tf([line],word_count,words,prepositions)
         idf_paragraph=idf([line],word_count,words,prepositions)
 
         total_vector = []

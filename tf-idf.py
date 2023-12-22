@@ -58,7 +58,7 @@ for z in range(5):
     all_words = ' '.join(documents).split()
 
     word_count = Counter(all_words)
-
+    #map the words in doc
     for word in word_count.keys():
         if word not in prepositions:
             words[word] = i
@@ -70,11 +70,12 @@ for z in range(5):
     for i in range(int(len(words))):
         total_vector.append(tf_vector[i] * idf_vector[i])
 
+    #put tf-idf in dt.txt
     with open("dt.txt",'a',encoding='utf-8', errors='ignore') as f:
         for item in total_vector:
             f.write(str(item) + " ")
         f.write('\n')
-
+    #find the most_frequent_word using tf
     most_frequent_word = tf_vector.index(max(tf_vector))
 
     c = 0
@@ -83,7 +84,7 @@ for z in range(5):
             print(item)
             break
         c+=1
-
+    #sort the totatl_vetor to find the top 5
     sorted_total_vector = sorted(total_vector, reverse=True)
     five_important_word = sorted_total_vector[:5]
 
